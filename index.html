@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paket Layanan - ArjaWeb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        .package-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .package-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .package-header {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .package-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+        .package-features {
+            padding: 2rem;
+            background: white;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        .package-cta {
+            padding: 1.5rem 2rem;
+            text-align: center;
+            background: white;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .ribbon {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            transform: rotate(45deg);
+            padding: 0.5rem 2rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="text-center mb-16">
+            <div class="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-full mb-4">
+                <span class="text-sm font-semibold">PAKET LAYANAN</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Pilih Paket yang Tepat untuk Bisnis Anda</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Setiap paket dirancang khusus dengan keunikan dan value berbeda untuk memenuhi berbagai kebutuhan digital Anda.
+            </p>
+        </div>
+
+        <!-- Pricing Packages Grid -->
+        <div class="grid lg:grid-cols-2 xl:grid-cols-4 gap-8">
+            
+            <!-- Paket Basic - 50 Ribu (Simple & Affordable) -->
+            <div class="package-card bg-white border-2 border-blue-100">
+                <div class="package-header bg-gradient-to-br from-blue-50 to-blue-100">
+                    <div class="package-icon bg-blue-500 text-white">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-blue-800 mb-2">Paket Basic</h3>
+                    <div class="mb-4">
+                        <span class="text-3xl font-bold text-blue-600">Rp 50.000</span>
+                        <span class="text-blue-500 block text-sm">Perfect for Beginners</span>
+                    </div>
+                    <div class="text-blue-600 text-sm">
+                        <i class="fas fa-bolt mr-1"></i>
+                        <span>Simple & Affordable</span>
+                    </div>
+                </div>
+                
+                <div class="package-features">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-gem text-blue-500 mr-2"></i>
+                        Fitur Utama
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>1 Halaman Website</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Desain Responsif Dasar</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Template Pilihan</span>
+                        </div>
+                        <div class="feature-item text-gray-400">
+                            <i class="fas fa-times-circle mr-3"></i>
+                            <span>Form Kontak</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="package-cta">
+                    <button onclick="openWhatsApp('Paket Basic - Rp 50.000')" class="whatsapp-btn bg-blue-600 hover:bg-blue-700 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 transform hover:scale-105">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Mulai Sekarang
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Cocok untuk CV/Portfolio sederhana</p>
+                </div>
+            </div>
+
+            <!-- Paket Standard - 100 Ribu (Value Pack) -->
+            <div class="package-card bg-white border-2 border-green-100">
+                <div class="package-header bg-gradient-to-br from-green-50 to-green-100">
+                    <div class="package-icon bg-green-500 text-white">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-green-800 mb-2">Paket Standard</h3>
+                    <div class="mb-4">
+                        <span class="text-3xl font-bold text-green-600">Rp 100.000</span>
+                        <span class="text-green-500 block text-sm">Best Value</span>
+                    </div>
+                    <div class="text-green-600 text-sm">
+                        <i class="fas fa-chart-line mr-1"></i>
+                        <span>Growth Starter</span>
+                    </div>
+                </div>
+                
+                <div class="package-features">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-star text-green-500 mr-2"></i>
+                        Value Features
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>3-5 Halaman Website</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Desain Responsif Premium</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Template Customizable</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Form Kontak Terintegrasi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="package-cta">
+                    <button onclick="openWhatsApp('Paket Standard - Rp 100.000')" class="whatsapp-btn bg-green-600 hover:bg-green-700 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 transform hover:scale-105">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Pilih Paket Ini
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Ideal untuk UMKM & Startup</p>
+                </div>
+            </div>
+
+            <!-- Paket Professional - 300 Ribu (Most Popular) -->
+            <div class="package-card bg-white border-2 border-purple-200 shadow-xl">
+                <div class="ribbon bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    POPULAR
+                </div>
+                <div class="package-header bg-gradient-to-br from-purple-50 to-purple-100">
+                    <div class="package-icon bg-gradient-to-r from-purple-600 to-pink-600 text-white pulse-animation">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-2">Paket Professional</h3>
+                    <div class="mb-4">
+                        <span class="text-3xl font-bold text-purple-600">Rp 300.000</span>
+                        <span class="text-purple-500 block text-sm">Most Chosen</span>
+                    </div>
+                    <div class="text-purple-600 text-sm">
+                        <i class="fas fa-fire mr-1"></i>
+                        <span>Complete Solution</span>
+                    </div>
+                </div>
+                
+                <div class="package-features">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-trophy text-purple-500 mr-2"></i>
+                        Premium Features
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>5-8 Halaman Lengkap</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Desain Modern & Responsif</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Template Exclusive</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>WhatsApp & Email Integration</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>5x Revisi Garansi</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="package-cta">
+                    <button onclick="openWhatsApp('Paket Professional - Rp 300.000')" class="whatsapp-btn bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Pesan Sekarang
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Perfect untuk Business Website</p>
+                </div>
+            </div>
+
+            <!-- Paket Enterprise - 500 Ribu (Premium) -->
+            <div class="package-card bg-white border-2 border-orange-100">
+                <div class="package-header bg-gradient-to-br from-orange-50 to-amber-100">
+                    <div class="package-icon bg-gradient-to-r from-orange-500 to-amber-500 text-white">
+                        <i class="fas fa-diamond"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-orange-800 mb-2">Paket Enterprise</h3>
+                    <div class="mb-4">
+                        <span class="text-3xl font-bold text-orange-600">Rp 500.000</span>
+                        <span class="text-orange-500 block text-sm">Premium Service</span>
+                    </div>
+                    <div class="text-orange-600 text-sm">
+                        <i class="fas fa-infinity mr-1"></i>
+                        <span>All-Inclusive</span>
+                    </div>
+                </div>
+                
+                <div class="package-features">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-award text-orange-500 mr-2"></i>
+                        Enterprise Features
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Website Unlimited Pages</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Desain Premium Custom</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Full Custom Development</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Multi-Platform Integration</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Unlimited Revisi</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>Support 30 Hari</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="package-cta">
+                    <button onclick="openWhatsApp('Paket Enterprise - Rp 500.000')" class="whatsapp-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 w-full py-3 px-6 rounded-xl text-white font-semibold transition-all duration-300 transform hover:scale-105">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Konsultasi Premium
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Untuk Bisnis Besar & Corporate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table for Mobile -->
+        <div class="mt-16 lg:hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 text-center">Perbandingan Paket</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3">Fitur</th>
+                                <th class="text-center py-3">Basic</th>
+                                <th class="text-center py-3">Standard</th>
+                                <th class="text-center py-3">Professional</th>
+                                <th class="text-center py-3">Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="py-3">Halaman Website</td>
+                                <td class="text-center py-3">1</td>
+                                <td class="text-center py-3">3-5</td>
+                                <td class="text-center py-3">5-8</td>
+                                <td class="text-center py-3">Unlimited</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-3">Revisi</td>
+                                <td class="text-center py-3">-</td>
+                                <td class="text-center py-3">2x</td>
+                                <td class="text-center py-3">5x</td>
+                                <td class="text-center py-3">Unlimited</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-3">Support</td>
+                                <td class="text-center py-3">-</td>
+                                <td class="text-center py-3">-</td>
+                                <td class="text-center py-3">-</td>
+                                <td class="text-center py-3">30 Hari</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="mt-16 bg-white rounded-2xl p-8 shadow-lg">
+            <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">Pertanyaan Umum</h3>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Berapa lama pengerjaan?</h4>
+                    <p class="text-gray-600">3-7 hari kerja tergantung kompleksitas proyek dan paket yang dipilih.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Apakah bisa request fitur custom?</h4>
+                    <p class="text-gray-600">Ya, khusus untuk paket Professional dan Enterprise tersedia custom feature request.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Bagaimana cara pembayaran?</h4>
+                    <p class="text-gray-600">Transfer bank, e-wallet, atau QRIS. Pembayaran 50% di awal, 50% setelah selesai.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Apakah termasuk domain dan hosting?</h4>
+                    <p class="text-gray-600">Tidak termasuk. Kami membantu rekomendasi penyedia terbaik sesuai budget.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openWhatsApp(packageName) {
+            const phoneNumber = "6281234567890"; // Ganti dengan nomor WhatsApp perusahaan
+            const message = `Halo ArjaWeb! Saya tertarik dengan ${packageName}. Bisa saya konsultasi lebih lanjut mengenai layanan ini?`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
