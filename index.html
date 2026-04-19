@@ -3,326 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pas Foto Editor CV ATS - 3x4 cm (Auto Crop)</title>
+    <title>Generator Kartu Ujian Siswa v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        
-        #crop-canvas {
-            max-width: 100%;
-            border: 3px solid #10b981;
-            border-radius: 12px;
+        .print-area {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 10px auto;
+            padding: 5mm;
+            background: white;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            cursor: move;
         }
-        
-        .pasfoto-frame {
-            width: 120px;
-            height: 160px;
-            border: 4px solid #f1f5f9;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
+
+        .card-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8mm;
+            page-break-inside: avoid;
         }
-        
-        .filter-slider { accent-color: #10b981; }
+
+        .single-card {
+            width: 95mm;
+            height: 135mm;
+            border: 2.5px solid #1e2937;
+            border-radius: 10px;
+            padding: 10mm 8mm;
+            background: white;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            page-break-inside: avoid;
+        }
+
+        /* Garis putus-putus dengan gunting */
+        .cut-line {
+            position: absolute;
+            border: 1.5px dashed #64748b;
+            pointer-events: none;
+        }
+        .cut-line.top    { top: -6mm; left: -6mm; right: -6mm; height: 1px; }
+        .cut-line.bottom { bottom: -6mm; left: -6mm; right: -6mm; height: 1px; }
+        .cut-line.left   { left: -6mm; top: -6mm; bottom: -6mm; width: 1px; }
+        .cut-line.right  { right: -6mm; top: -6mm; bottom: -6mm; width: 1px; }
+
+        .scissors {
+            position: absolute;
+            font-size: 14px;
+            color: #64748b;
+            background: white;
+            padding: 0 4px;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; margin: 0; padding: 0; }
+            .print-area { box-shadow: none; margin: 0; padding: 0; width: 210mm; }
+            .single-card { box-shadow: none; margin: 4mm auto; }
+            .cut-line { border-color: #94a3b8; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen py-12">
+<body class="bg-slate-100 font-sans">
 
-    <div class="max-w-4xl mx-auto px-6">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-slate-900 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-id-card text-emerald-500"></i>
-                Pas Foto Editor CV ATS
-            </h1>
-            <p class="text-emerald-600 font-medium">Ukuran Standar 3x4 cm • Auto Crop Rasio 3:4</p>
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-id-card text-3xl text-emerald-400"></i>
+                <h1 class="text-2xl font-bold">Kartu Ujian Siswa v2</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="saveAsImage()" class="px-5 py-2 bg-violet-600 hover:bg-violet-700 rounded-xl flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-image"></i> PNG
+                </button>
+                <button onclick="window.print()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-print"></i> CETAK (25 Siswa)
+                </button>
+                <button onclick="clearAll()" class="px-5 py-2 bg-red-500 hover:bg-red-600 rounded-xl flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-trash"></i> Reset
+                </button>
+            </div>
         </div>
+    </nav>
 
-        <div class="bg-white rounded-3xl shadow-xl p-8">
-            <!-- Upload Area -->
-            <div id="upload-area" class="border-2 border-dashed border-slate-300 hover:border-emerald-400 rounded-3xl p-12 text-center cursor-pointer transition-all"
-                 onclick="document.getElementById('foto-upload').click()">
-                <input type="file" id="foto-upload" accept="image/*" class="hidden" onchange="startEditor(this)">
-                <i class="fa-solid fa-camera text-6xl text-slate-400 mb-4"></i>
-                <p class="font-medium text-slate-700">Upload Foto untuk Pas Foto CV</p>
-                <p class="text-sm text-slate-500 mt-1">Sistem akan otomatis crop ke rasio 3:4</p>
+    <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Input -->
+        <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8">
+            <h2 class="text-2xl font-semibold mb-6">Upload Data Siswa Excel</h2>
+            
+            <div class="border-2 border-dashed border-slate-300 rounded-3xl p-12 text-center hover:border-emerald-400">
+                <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload(event)">
+                <button onclick="document.getElementById('excel-upload').click()" class="w-full py-10 flex flex-col items-center">
+                    <i class="fa-solid fa-file-excel text-6xl mb-4 text-emerald-600"></i>
+                    <span class="font-medium text-lg">Upload File Excel</span>
+                </button>
             </div>
 
-            <!-- Editor Area -->
-            <div id="editor-area" class="hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    
-                    <!-- Canvas Editor -->
-                    <div class="lg:col-span-8">
-                        <p class="text-sm font-medium text-slate-600 mb-3">Geser • Zoom • Sesuaikan</p>
-                        <canvas id="crop-canvas" width="354" height="472"></canvas>
-                        
-                        <div class="mt-6 bg-slate-50 p-5 rounded-2xl">
-                            <p class="text-sm font-medium mb-4">Filter Penyesuaian</p>
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="flex justify-between text-xs mb-1">
-                                        <span>Kecerahan</span>
-                                        <span id="val-brightness">100</span>
-                                    </label>
-                                    <input type="range" id="brightness" min="50" max="150" value="100" class="filter-slider w-full">
-                                </div>
-                                <div>
-                                    <label class="flex justify-between text-xs mb-1">
-                                        <span>Kontras</span>
-                                        <span id="val-contrast">100</span>
-                                    </label>
-                                    <input type="range" id="contrast" min="50" max="150" value="100" class="filter-slider w-full">
-                                </div>
-                                <div>
-                                    <label class="flex justify-between text-xs mb-1">
-                                        <span>Saturasi Warna</span>
-                                        <span id="val-saturation">100</span>
-                                    </label>
-                                    <input type="range" id="saturation" min="0" max="200" value="100" class="filter-slider w-full">
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-3 mt-6">
-                                <button onclick="toggleGrayscale()" class="flex-1 py-2.5 text-sm bg-slate-200 hover:bg-slate-300 rounded-2xl">Hitam Putih</button>
-                                <button onclick="toggleSepia()" class="flex-1 py-2.5 text-sm bg-slate-200 hover:bg-slate-300 rounded-2xl">Sepia</button>
-                                <button onclick="resetFilters()" class="flex-1 py-2.5 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-2xl">Reset Filter</button>
-                            </div>
-                        </div>
-                    </div>
+            <div class="mt-8 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nama Sekolah</label>
+                    <input id="nama-sekolah" type="text" value="SMA NEGERI 1 PANINGGARAN" 
+                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Alamat Sekolah</label>
+                    <input id="alamat-sekolah" type="text" value="Jl. Raya Paninggaran, Pekalongan, Jawa Tengah" 
+                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nama Kepala Sekolah</label>
+                    <input id="kepsek" type="text" value="Drs. Ahmad Fauzi, M.Pd" 
+                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
+                </div>
+            </div>
+        </div>
 
-                    <!-- Preview & Tombol -->
-                    <div class="lg:col-span-4">
-                        <p class="text-sm font-medium text-slate-600 mb-3">Preview Pas Foto 3x4 cm</p>
-                        <div id="preview-pasfoto" class="pasfoto-frame mx-auto bg-white"></div>
-                        
-                        <div class="mt-8 space-y-3">
-                            <button onclick="downloadPasFoto()" 
-                                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-medium flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-download"></i> Download JPG 3x4 cm
-                            </button>
-                            
-                            <button onclick="useInCV()" 
-                                    class="w-full bg-violet-600 hover:bg-violet-700 text-white py-3.5 rounded-2xl font-medium flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-file-lines"></i> Gunakan di CV ATS
-                            </button>
-                            
-                            <button onclick="resetAll()" 
-                                    class="w-full bg-slate-200 hover:bg-slate-300 py-3.5 rounded-2xl font-medium">
-                                Upload Foto Baru
-                            </button>
-                        </div>
-                    </div>
+        <!-- Preview -->
+        <div class="lg:col-span-7">
+            <div class="flex justify-between mb-4">
+                <h3 class="font-semibold flex items-center gap-2"><i class="fa-solid fa-eye"></i> Pratinjau Kartu Ujian</h3>
+                <span id="jumlah-kartu" class="bg-emerald-100 text-emerald-700 px-5 py-1.5 rounded-3xl text-sm">0 kartu</span>
+            </div>
+            
+            <div class="bg-white p-6 rounded-3xl shadow-inner overflow-auto max-h-[75vh]">
+                <div id="print-area" class="print-area mx-auto">
+                    <div id="kartu-container" class="card-container"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentImage = null;
-        let cropX = 0, cropY = 0, cropScale = 1;
-        let isDragging = false;
-        let lastX = 0, lastY = 0;
-        let canvas, ctx;
+        let siswaData = [];
 
-        // Filter
-        let brightness = 100;
-        let contrast = 100;
-        let saturation = 100;
-        let isGrayscale = false;
-        let isSepia = false;
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        function startEditor(input) {
-            if (!input.files || !input.files[0]) return;
-            
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentImage = new Image();
-                currentImage.onload = function() {
-                    document.getElementById('upload-area').classList.add('hidden');
-                    document.getElementById('editor-area').classList.remove('hidden');
-                    
-                    autoCropTo34Ratio();   // ← Auto crop jika tidak sesuai rasio
-                    initCanvas();
-                    resetFilters();
-                };
-                currentImage.src = e.target.result;
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                siswaData = XLSX.utils.sheet_to_json(worksheet);
+
+                document.getElementById('jumlah-kartu').textContent = `${siswaData.length} kartu`;
+                generateCards();
             };
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsArrayBuffer(file);
         }
 
-        // Fungsi Auto Crop ke Rasio 3:4
-        function autoCropTo34Ratio() {
-            const targetRatio = 3 / 4; // lebar : tinggi = 3:4
-            const imageRatio = currentImage.width / currentImage.height;
+        function generateCards() {
+            const container = document.getElementById('kartu-container');
+            container.innerHTML = '';
 
-            let newWidth = currentImage.width;
-            let newHeight = currentImage.height;
-            let offsetX = 0;
-            let offsetY = 0;
+            const namaSekolah = document.getElementById('nama-sekolah').value || "Nama Sekolah";
+            const alamatSekolah = document.getElementById('alamat-sekolah').value || "";
+            const kepsek = document.getElementById('kepsek').value || "Kepala Sekolah";
 
-            if (imageRatio > targetRatio) {
-                // Foto terlalu lebar → crop sisi kiri & kanan
-                newWidth = currentImage.height * targetRatio;
-                offsetX = (currentImage.width - newWidth) / 2;
-            } else {
-                // Foto terlalu tinggi → crop atas & bawah
-                newHeight = currentImage.width / targetRatio;
-                offsetY = (currentImage.height - newHeight) / 2;
-            }
+            // Tanggal hari ini
+            const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            // Buat canvas sementara untuk crop
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = newWidth;
-            tempCanvas.height = newHeight;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            tempCtx.drawImage(
-                currentImage,
-                offsetX, offsetY, newWidth, newHeight,
-                0, 0, newWidth, newHeight
-            );
+            siswaData.forEach((siswa, i) => {
+                const card = document.createElement('div');
+                card.className = "single-card relative";
+                card.innerHTML = `
+                    <div class="cut-line top"></div>
+                    <div class="cut-line bottom"></div>
+                    <div class="cut-line left"></div>
+                    <div class="cut-line right"></div>
 
-            // Ganti currentImage dengan hasil crop
-            const newImg = new Image();
-            newImg.onload = () => {
-                currentImage = newImg;
-            };
-            newImg.src = tempCanvas.toDataURL('image/jpeg', 0.95);
-        }
+                    <!-- Simbol gunting di 4 sudut -->
+                    <div class="scissors" style="top:-9mm; left:50%; transform:translateX(-50%);">✂️</div>
+                    <div class="scissors" style="bottom:-9mm; left:50%; transform:translateX(-50%);">✂️</div>
+                    <div class="scissors" style="top:50%; left:-9mm; transform:translateY(-50%); rotate(-90deg);">✂️</div>
+                    <div class="scissors" style="top:50%; right:-9mm; transform:translateY(-50%); rotate(90deg);">✂️</div>
 
-        function initCanvas() {
-            canvas = document.getElementById('crop-canvas');
-            ctx = canvas.getContext('2d');
-            
-            canvas.width = 354;   // 3x4 cm @ 300 DPI
-            canvas.height = 472;
+                    <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
+                        <h2 class="font-bold text-[15pt] tracking-tight">${namaSekolah}</h2>
+                        <p class="text-[9pt] text-slate-600">${alamatSekolah}</p>
+                        <p class="mt-3 font-semibold text-emerald-700 text-lg">KARTU PESERTA UJIAN</p>
+                    </div>
 
-            // Hitung scale awal
-            const scaleX = canvas.width / currentImage.width;
-            const scaleY = canvas.height / currentImage.height;
-            cropScale = Math.max(scaleX, scaleY) * 1.05;
+                    <div class="grid grid-cols-3 gap-x-3 text-[10.5pt]">
+                        <div class="col-span-2 space-y-2.5">
+                            <div><strong>No. Peserta</strong><br>${siswa.No || siswa['No Peserta'] || (i+1)}</div>
+                            <div><strong>Nama Lengkap</strong><br><span class="font-medium">${siswa['Nama Siswa'] || siswa.Nama || '-'}</span></div>
+                            <div><strong>Kelas</strong><br>${siswa.Kelas || '-'}</div>
+                            <div><strong>NIS / NISN</strong><br>${siswa.NIS || siswa.NISN || '-'}</div>
+                            <div><strong>Ruang Ujian</strong><br>${siswa['Ruang Ujian'] || '-'}</div>
+                            <div><strong>Tanggal Ujian</strong><br>${siswa['Tanggal Ujian'] || '-'}</div>
+                        </div>
+                        <div class="flex justify-end items-start">
+                            <div class="w-20 h-28 border border-slate-300 rounded bg-slate-50 flex items-center justify-center text-slate-400">
+                                <i class="fa-solid fa-user text-4xl"></i>
+                            </div>
+                        </div>
+                    </div>
 
-            cropX = (canvas.width - currentImage.width * cropScale) / 2;
-            cropY = (canvas.height - currentImage.height * cropScale) / 2;
-
-            drawCanvas();
-
-            // Event Drag & Zoom
-            canvas.addEventListener('mousedown', (e) => { isDragging = true; lastX = e.offsetX; lastY = e.offsetY; });
-            canvas.addEventListener('mousemove', dragImage);
-            canvas.addEventListener('mouseup', () => isDragging = false);
-            canvas.addEventListener('mouseleave', () => isDragging = false);
-            canvas.addEventListener('wheel', zoomImage);
-
-            // Filter sliders
-            setupSliders();
-        }
-
-        function setupSliders() {
-            const sliders = ['brightness', 'contrast', 'saturation'];
-            sliders.forEach(id => {
-                const el = document.getElementById(id);
-                el.addEventListener('input', () => {
-                    window[id] = parseInt(el.value);
-                    document.getElementById(`val-${id}`).textContent = window[id];
-                    drawCanvas();
-                });
+                    <div class="mt-auto pt-6 border-t border-slate-300 text-[9.5pt]">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                Panitia Ujian<br>
+                                ________________________
+                            </div>
+                            <div class="text-right">
+                                Mengetahui,<br>
+                                Kepala Sekolah<br><br><br>
+                                <span class="font-medium">${kepsek}</span><br>
+                                <span class="text-xs text-slate-500">${today}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
 
-        function drawCanvas() {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) 
-                         ${isGrayscale ? 'grayscale(100%)' : ''} 
-                         ${isSepia ? 'sepia(70%)' : ''}`;
-            
-            ctx.drawImage(
-                currentImage,
-                cropX, cropY,
-                currentImage.width * cropScale,
-                currentImage.height * cropScale
-            );
-            ctx.restore();
-
-            updateSmallPreview();
+        function saveAsImage() {
+            const area = document.getElementById('print-area');
+            html2canvas(area, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Kartu_Ujian_Siswa.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         }
 
-        function dragImage(e) {
-            if (!isDragging) return;
-            cropX += (e.offsetX - lastX);
-            cropY += (e.offsetY - lastY);
-            lastX = e.offsetX;
-            lastY = e.offsetY;
-            drawCanvas();
+        function clearAll() {
+            if (confirm('Hapus semua data siswa?')) {
+                siswaData = [];
+                document.getElementById('kartu-container').innerHTML = '';
+                document.getElementById('jumlah-kartu').textContent = '0 kartu';
+            }
         }
 
-        function zoomImage(e) {
-            e.preventDefault();
-            const factor = e.deltaY < 0 ? 1.08 : 0.93;
-            const oldScale = cropScale;
-            cropScale *= factor;
-            cropX = e.offsetX - (e.offsetX - cropX) * (cropScale / oldScale);
-            cropY = e.offsetY - (e.offsetY - cropY) * (cropScale / oldScale);
-            drawCanvas();
-        }
-
-        function updateSmallPreview() {
-            document.getElementById('preview-pasfoto').innerHTML = 
-                `<img src="${canvas.toDataURL('image/jpeg', 0.95)}" class="w-full h-full object-cover">`;
-        }
-
-        function toggleGrayscale() {
-            isGrayscale = !isGrayscale;
-            if (isGrayscale) isSepia = false;
-            drawCanvas();
-        }
-
-        function toggleSepia() {
-            isSepia = !isSepia;
-            if (isSepia) isGrayscale = false;
-            drawCanvas();
-        }
-
-        function resetFilters() {
-            brightness = 100; contrast = 100; saturation = 100;
-            isGrayscale = false; isSepia = false;
-            document.getElementById('brightness').value = 100;
-            document.getElementById('contrast').value = 100;
-            document.getElementById('saturation').value = 100;
-            document.getElementById('val-brightness').textContent = 100;
-            document.getElementById('val-contrast').textContent = 100;
-            document.getElementById('val-saturation').textContent = 100;
-            drawCanvas();
-        }
-
-        function downloadPasFoto() {
-            const link = document.createElement('a');
-            link.download = 'pas_foto_cv_ats_3x4.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
-            link.click();
-        }
-
-        function useInCV() {
-            const fotoDataURL = canvas.toDataURL('image/jpeg', 0.95);
-            localStorage.setItem('cvPasFoto', fotoDataURL);
-            alert('✅ Pas foto 3x4 cm siap digunakan di CV ATS!\n\nFoto telah disimpan di localStorage.');
-        }
-
-        function resetAll() {
-            location.reload();
-        }
-
+        // Contoh data awal (bisa dihapus)
         window.onload = () => {
-            console.log('%cPas Foto Editor CV ATS dengan Auto Crop 3:4 siap digunakan', 'color:#10b981; font-weight:bold');
+            // Contoh 5 siswa (kamu tinggal upload Excel untuk 25 siswa)
+            siswaData = [
+                {"No":1, "Nama Siswa":"Muhammad Hafis", "Kelas":"XII TKJ 1", "NIS":"09876543", "Ruang Ujian":"101", "Tanggal Ujian":"20 April 2026"},
+                {"No":2, "Nama Siswa":"Siti Aisyah", "Kelas":"XII TKJ 1", "NIS":"09876544", "Ruang Ujian":"101", "Tanggal Ujian":"20 April 2026"}
+            ];
+            generateCards();
         };
     </script>
 </body>
