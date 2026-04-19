@@ -3,254 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Kartu Ujian Siswa v2</title>
+    <title>PhotoLab - Editor Foto Online Gratis</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        .print-area {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 10px auto;
-            padding: 5mm;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
-        .card-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8mm;
-            page-break-inside: avoid;
-        }
-
-        .single-card {
-            width: 95mm;
-            height: 135mm;
-            border: 2.5px solid #1e2937;
-            border-radius: 10px;
-            padding: 10mm 8mm;
-            background: white;
-            position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            page-break-inside: avoid;
-        }
-
-        /* Garis putus-putus dengan gunting */
-        .cut-line {
-            position: absolute;
-            border: 1.5px dashed #64748b;
-            pointer-events: none;
-        }
-        .cut-line.top    { top: -6mm; left: -6mm; right: -6mm; height: 1px; }
-        .cut-line.bottom { bottom: -6mm; left: -6mm; right: -6mm; height: 1px; }
-        .cut-line.left   { left: -6mm; top: -6mm; bottom: -6mm; width: 1px; }
-        .cut-line.right  { right: -6mm; top: -6mm; bottom: -6mm; width: 1px; }
-
-        .scissors {
-            position: absolute;
-            font-size: 14px;
-            color: #64748b;
-            background: white;
-            padding: 0 4px;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; margin: 0; padding: 0; }
-            .print-area { box-shadow: none; margin: 0; padding: 0; width: 210mm; }
-            .single-card { box-shadow: none; margin: 4mm auto; }
-            .cut-line { border-color: #94a3b8; }
-        }
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        canvas { max-width: 100%; max-height: 70vh; border-radius: 16px; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
+        .tool-btn { transition: all 0.2s; }
+        .tool-btn:hover { transform: translateY(-2px); }
     </style>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="bg-slate-950 text-white min-h-screen">
 
-    <nav class="bg-slate-900 text-white sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-id-card text-3xl text-emerald-400"></i>
-                <h1 class="text-2xl font-bold">Kartu Ujian Siswa v2</h1>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
+            <div class="px-8 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-image text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight">PhotoLab</h1>
+                        <p class="text-xs text-slate-400 -mt-1">Editor Foto Online</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="resetEditor()" 
+                            class="flex items-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm font-medium">
+                        <i class="fa-solid fa-rotate"></i> Reset
+                    </button>
+                    <button onclick="downloadImage()" 
+                            class="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-semibold">
+                        <i class="fa-solid fa-download"></i> Download
+                    </button>
+                </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="saveAsImage()" class="px-5 py-2 bg-violet-600 hover:bg-violet-700 rounded-xl flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-image"></i> PNG
-                </button>
-                <button onclick="window.print()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-print"></i> CETAK (25 Siswa)
-                </button>
-                <button onclick="clearAll()" class="px-5 py-2 bg-red-500 hover:bg-red-600 rounded-xl flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-trash"></i> Reset
-                </button>
-            </div>
-        </div>
-    </nav>
+        </header>
 
-    <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Input -->
-        <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8">
-            <h2 class="text-2xl font-semibold mb-6">Upload Data Siswa Excel</h2>
+        <div class="flex flex-col lg:flex-row h-[calc(100vh-73px)]">
             
-            <div class="border-2 border-dashed border-slate-300 rounded-3xl p-12 text-center hover:border-emerald-400">
-                <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload(event)">
-                <button onclick="document.getElementById('excel-upload').click()" class="w-full py-10 flex flex-col items-center">
-                    <i class="fa-solid fa-file-excel text-6xl mb-4 text-emerald-600"></i>
-                    <span class="font-medium text-lg">Upload File Excel</span>
-                </button>
+            <!-- Sidebar Tools -->
+            <div class="lg:w-72 bg-slate-900 border-r border-slate-800 p-6 overflow-y-auto">
+                <h2 class="uppercase text-xs tracking-widest font-medium text-slate-400 mb-6">Tools Editing</h2>
+                
+                <!-- Upload -->
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-slate-400 mb-3">Upload Foto</label>
+                    <input type="file" id="upload" accept="image/*" class="hidden" onchange="loadImage(event)">
+                    <button onclick="document.getElementById('upload').click()" 
+                            class="w-full h-28 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-3xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                        <span class="text-sm">Pilih atau tarik foto ke sini</span>
+                    </button>
+                </div>
+
+                <!-- Basic Adjustments -->
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> Penyesuaian
+                        </h3>
+                        <div class="space-y-5">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Brightness</span>
+                                    <span id="val-brightness">100</span>
+                                </div>
+                                <input type="range" id="brightness" min="0" max="200" value="100" 
+                                       class="w-full accent-emerald-500" oninput="applyFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Contrast</span>
+                                    <span id="val-contrast">100</span>
+                                </div>
+                                <input type="range" id="contrast" min="0" max="200" value="100" 
+                                       class="w-full accent-emerald-500" oninput="applyFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Saturation</span>
+                                    <span id="val-saturation">100</span>
+                                </div>
+                                <input type="range" id="saturation" min="0" max="200" value="100" 
+                                       class="w-full accent-emerald-500" oninput="applyFilters()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div>
+                        <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Filter
+                        </h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="applyPresetFilter('grayscale')" class="tool-btn bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl text-center text-xs">Grayscale</button>
+                            <button onclick="applyPresetFilter('sepia')" class="tool-btn bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl text-center text-xs">Sepia</button>
+                            <button onclick="applyPresetFilter('invert')" class="tool-btn bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl text-center text-xs">Invert</button>
+                        </div>
+                    </div>
+
+                    <!-- Transform -->
+                    <div>
+                        <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-rotate"></i> Transform
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="rotateImage(90)" class="tool-btn bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-rotate-right"></i> Rotate
+                            </button>
+                            <button onclick="flipImage()" class="tool-btn bg-slate-800 hover:bg-slate-700 py-4 rounded-2xl flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-arrows-left-right"></i> Flip
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="mt-8 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Nama Sekolah</label>
-                    <input id="nama-sekolah" type="text" value="SMA NEGERI 1 PANINGGARAN" 
-                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Alamat Sekolah</label>
-                    <input id="alamat-sekolah" type="text" value="Jl. Raya Paninggaran, Pekalongan, Jawa Tengah" 
-                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Nama Kepala Sekolah</label>
-                    <input id="kepsek" type="text" value="Drs. Ahmad Fauzi, M.Pd" 
-                           class="w-full px-5 py-3 border border-slate-200 rounded-2xl">
-                </div>
-            </div>
-        </div>
-
-        <!-- Preview -->
-        <div class="lg:col-span-7">
-            <div class="flex justify-between mb-4">
-                <h3 class="font-semibold flex items-center gap-2"><i class="fa-solid fa-eye"></i> Pratinjau Kartu Ujian</h3>
-                <span id="jumlah-kartu" class="bg-emerald-100 text-emerald-700 px-5 py-1.5 rounded-3xl text-sm">0 kartu</span>
-            </div>
-            
-            <div class="bg-white p-6 rounded-3xl shadow-inner overflow-auto max-h-[75vh]">
-                <div id="print-area" class="print-area mx-auto">
-                    <div id="kartu-container" class="card-container"></div>
+            <!-- Preview Area -->
+            <div class="flex-1 flex items-center justify-center bg-slate-950 p-8 relative" id="canvas-container">
+                <canvas id="canvas" width="800" height="600" class="bg-slate-900"></canvas>
+                
+                <!-- Placeholder jika belum ada gambar -->
+                <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                    <i class="fa-solid fa-image text-8xl mb-6 opacity-30"></i>
+                    <p class="text-xl font-medium">Upload foto untuk mulai mengedit</p>
+                    <p class="text-sm mt-2">PNG, JPG, atau JPEG</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let siswaData = [];
+        let canvas = new fabric.Canvas('canvas', {
+            backgroundColor: '#1f2937',
+            preserveObjectStacking: true
+        });
+        
+        let originalImage = null;
+        let currentFilter = '';
 
-        function handleExcelUpload(event) {
-            const file = event.target.files[0];
+        function loadImage(e) {
+            const file = e.target.files[0];
             if (!file) return;
-
+            
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                siswaData = XLSX.utils.sheet_to_json(worksheet);
-
-                document.getElementById('jumlah-kartu').textContent = `${siswaData.length} kartu`;
-                generateCards();
+            reader.onload = function(event) {
+                fabric.Image.fromURL(event.target.result, function(img) {
+                    // Hapus objek lama
+                    canvas.clear();
+                    
+                    // Scale gambar agar muat di canvas
+                    const maxWidth = 750;
+                    const maxHeight = 500;
+                    let scale = 1;
+                    
+                    if (img.width > maxWidth || img.height > maxHeight) {
+                        scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+                    }
+                    
+                    img.scale(scale);
+                    img.center();
+                    
+                    canvas.add(img);
+                    canvas.setActiveObject(img);
+                    originalImage = img;
+                    
+                    document.getElementById('placeholder').style.display = 'none';
+                    applyFilters();
+                });
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsDataURL(file);
         }
 
-        function generateCards() {
-            const container = document.getElementById('kartu-container');
-            container.innerHTML = '';
-
-            const namaSekolah = document.getElementById('nama-sekolah').value || "Nama Sekolah";
-            const alamatSekolah = document.getElementById('alamat-sekolah').value || "";
-            const kepsek = document.getElementById('kepsek').value || "Kepala Sekolah";
-
-            // Tanggal hari ini
-            const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
-            siswaData.forEach((siswa, i) => {
-                const card = document.createElement('div');
-                card.className = "single-card relative";
-                card.innerHTML = `
-                    <div class="cut-line top"></div>
-                    <div class="cut-line bottom"></div>
-                    <div class="cut-line left"></div>
-                    <div class="cut-line right"></div>
-
-                    <!-- Simbol gunting di 4 sudut -->
-                    <div class="scissors" style="top:-9mm; left:50%; transform:translateX(-50%);">✂️</div>
-                    <div class="scissors" style="bottom:-9mm; left:50%; transform:translateX(-50%);">✂️</div>
-                    <div class="scissors" style="top:50%; left:-9mm; transform:translateY(-50%); rotate(-90deg);">✂️</div>
-                    <div class="scissors" style="top:50%; right:-9mm; transform:translateY(-50%); rotate(90deg);">✂️</div>
-
-                    <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
-                        <h2 class="font-bold text-[15pt] tracking-tight">${namaSekolah}</h2>
-                        <p class="text-[9pt] text-slate-600">${alamatSekolah}</p>
-                        <p class="mt-3 font-semibold text-emerald-700 text-lg">KARTU PESERTA UJIAN</p>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-x-3 text-[10.5pt]">
-                        <div class="col-span-2 space-y-2.5">
-                            <div><strong>No. Peserta</strong><br>${siswa.No || siswa['No Peserta'] || (i+1)}</div>
-                            <div><strong>Nama Lengkap</strong><br><span class="font-medium">${siswa['Nama Siswa'] || siswa.Nama || '-'}</span></div>
-                            <div><strong>Kelas</strong><br>${siswa.Kelas || '-'}</div>
-                            <div><strong>NIS / NISN</strong><br>${siswa.NIS || siswa.NISN || '-'}</div>
-                            <div><strong>Ruang Ujian</strong><br>${siswa['Ruang Ujian'] || '-'}</div>
-                            <div><strong>Tanggal Ujian</strong><br>${siswa['Tanggal Ujian'] || '-'}</div>
-                        </div>
-                        <div class="flex justify-end items-start">
-                            <div class="w-20 h-28 border border-slate-300 rounded bg-slate-50 flex items-center justify-center text-slate-400">
-                                <i class="fa-solid fa-user text-4xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto pt-6 border-t border-slate-300 text-[9.5pt]">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                Panitia Ujian<br>
-                                ________________________
-                            </div>
-                            <div class="text-right">
-                                Mengetahui,<br>
-                                Kepala Sekolah<br><br><br>
-                                <span class="font-medium">${kepsek}</span><br>
-                                <span class="text-xs text-slate-500">${today}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+        function applyFilters() {
+            if (!originalImage) return;
+            
+            const brightness = parseFloat(document.getElementById('brightness').value) / 100;
+            const contrast = parseFloat(document.getElementById('contrast').value) / 100;
+            const saturation = parseFloat(document.getElementById('saturation').value) / 100;
+            
+            // Update nilai tampilan
+            document.getElementById('val-brightness').textContent = Math.round(brightness * 100);
+            document.getElementById('val-contrast').textContent = Math.round(contrast * 100);
+            document.getElementById('val-saturation').textContent = Math.round(saturation * 100);
+            
+            // Terapkan filter
+            let filters = [];
+            
+            filters.push(new fabric.Image.filters.Brightness({ brightness: brightness - 1 }));
+            filters.push(new fabric.Image.filters.Contrast({ contrast: contrast - 1 }));
+            filters.push(new fabric.Image.filters.Saturation({ saturation: saturation - 1 }));
+            
+            if (currentFilter === 'grayscale') filters.push(new fabric.Image.filters.Grayscale());
+            if (currentFilter === 'sepia') filters.push(new fabric.Image.filters.Sepia());
+            if (currentFilter === 'invert') filters.push(new fabric.Image.filters.Invert());
+            
+            originalImage.filters = filters;
+            originalImage.applyFilters();
+            canvas.renderAll();
         }
 
-        function saveAsImage() {
-            const area = document.getElementById('print-area');
-            html2canvas(area, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'Kartu_Ujian_Siswa.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
+        function applyPresetFilter(filter) {
+            currentFilter = (currentFilter === filter) ? '' : filter;
+            applyFilters();
         }
 
-        function clearAll() {
-            if (confirm('Hapus semua data siswa?')) {
-                siswaData = [];
-                document.getElementById('kartu-container').innerHTML = '';
-                document.getElementById('jumlah-kartu').textContent = '0 kartu';
+        function rotateImage(degrees) {
+            if (!originalImage) return;
+            originalImage.rotate(originalImage.angle + degrees);
+            canvas.renderAll();
+        }
+
+        function flipImage() {
+            if (!originalImage) return;
+            originalImage.flipX = !originalImage.flipX;
+            canvas.renderAll();
+        }
+
+        function downloadImage() {
+            if (!originalImage) {
+                alert("Upload foto terlebih dahulu!");
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = 'edited-photo.png';
+            link.href = canvas.toDataURL({ format: 'png', quality: 1 });
+            link.click();
+        }
+
+        function resetEditor() {
+            if (confirm("Reset semua perubahan?")) {
+                canvas.clear();
+                document.getElementById('placeholder').style.display = 'flex';
+                document.getElementById('brightness').value = 100;
+                document.getElementById('contrast').value = 100;
+                document.getElementById('saturation').value = 100;
+                currentFilter = '';
+                originalImage = null;
             }
         }
 
-        // Contoh data awal (bisa dihapus)
-        window.onload = () => {
-            // Contoh 5 siswa (kamu tinggal upload Excel untuk 25 siswa)
-            siswaData = [
-                {"No":1, "Nama Siswa":"Muhammad Hafis", "Kelas":"XII TKJ 1", "NIS":"09876543", "Ruang Ujian":"101", "Tanggal Ujian":"20 April 2026"},
-                {"No":2, "Nama Siswa":"Siti Aisyah", "Kelas":"XII TKJ 1", "NIS":"09876544", "Ruang Ujian":"101", "Tanggal Ujian":"20 April 2026"}
-            ];
-            generateCards();
-        };
+        // Drag & Drop Support
+        const container = document.getElementById('canvas-container');
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            container.style.borderColor = '#10b981';
+        });
+        
+        container.addEventListener('dragleave', () => {
+            container.style.borderColor = '';
+        });
+        
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            container.style.borderColor = '';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    fabric.Image.fromURL(ev.target.result, function(img) {
+                        canvas.clear();
+                        const scale = Math.min(750 / img.width, 500 / img.height);
+                        img.scale(scale);
+                        img.center();
+                        canvas.add(img);
+                        originalImage = img;
+                        document.getElementById('placeholder').style.display = 'none';
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>
