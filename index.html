@@ -17,10 +17,10 @@
             background: white;
             box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.15);
             margin: 30px auto;
-            padding: 18mm 20mm;           /* Sedikit lebih kecil agar muat konten compact */
+            padding: 18mm 20mm;
             font-family: 'Inter', system-ui, sans-serif;
             font-size: 11.8pt;
-            line-height: 1.65;            /* Lebih compact sesuai permintaan */
+            line-height: 1.65;
             color: #1f2937;
             position: relative;
             box-sizing: border-box;
@@ -28,16 +28,8 @@
 
         @media print {
             .no-print { display: none !important; }
-            body { 
-                background: white !important; 
-                margin: 0; 
-                padding: 0; 
-            }
-            .preview-wrapper { 
-                box-shadow: none !important; 
-                padding: 0 !important; 
-                margin: 0 !important;
-            }
+            body { background: white !important; margin: 0; padding: 0; }
+            .preview-wrapper { box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
             .a4-paper {
                 width: 210mm !important;
                 height: auto !important;
@@ -46,33 +38,23 @@
                 padding: 18mm 20mm !important;
                 box-shadow: none !important;
             }
-
-            @page {
-                size: A4 portrait;
-                margin: 0;
-            }
-
-            /* Anti potong - sangat penting saat line-height rapat */
+            @page { size: A4 portrait; margin: 0; }
             *, p, div, span, .data-diri, .isi-surat {
                 overflow: visible !important;
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
             }
-
-            .mt-12, .mt-20 {
-                page-break-inside: avoid;
-            }
         }
 
         .tanggal { text-align: right; margin-bottom: 10px; }
-        .lampiran-perihal { margin-bottom: 22px; line-height: 1.65; }
+        .perihal { margin-bottom: 28px; line-height: 1.65; }
         .alamat-tujuan { margin-bottom: 28px; }
         .isi-surat { text-align: justify; }
 
         .data-diri {
             display: grid;
             grid-template-columns: 195px auto;
-            gap: 6px 18px;               /* Lebih rapat */
+            gap: 6px 18px;
             line-height: 1.68;
             margin: 16px 0 20px 0;
         }
@@ -81,6 +63,12 @@
             font-weight: 500;
             white-space: nowrap;
         }
+
+        .ttd-container {
+            margin-top: 40px;
+        }
+        .ttd-container.right { text-align: right; }
+        .ttd-container.left { text-align: left; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans">
@@ -92,7 +80,7 @@
                 <i class="fa-solid fa-envelope text-3xl text-emerald-400"></i>
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight">SURAT LAMARAN KERJA</h1>
-                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v6.9 • Compact</p>
+                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v7.2 • Compact</p>
                 </div>
             </div>
             
@@ -119,7 +107,7 @@
     <div class="max-w-screen-2xl mx-auto px-6 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- FORM INPUT (sama seperti sebelumnya) -->
+            <!-- FORM INPUT -->
             <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8 no-print overflow-auto max-h-screen">
                 <div class="mb-8">
                     <h2 class="text-2xl font-semibold text-slate-800">Surat Lamaran Kerja Formal</h2>
@@ -139,8 +127,14 @@
                                    class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" oninput="updatePreview()">
                         </div>
 
-                        <input id="alamat" type="text" value="Paninggaran, Pekalongan, Jawa Tengah" placeholder="Alamat Lengkap" 
-                               class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <select id="jenis_kelamin" class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" onchange="updatePreview()">
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan" selected>Perempuan</option>
+                            </select>
+                            <input id="alamat" type="text" value="Paninggaran, Pekalongan, Jawa Tengah" placeholder="Alamat Lengkap" 
+                                   class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" oninput="updatePreview()">
+                        </div>
 
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <input id="telepon" type="tel" value="0856-1234-5678" placeholder="No. Telepon / HP" 
@@ -197,6 +191,14 @@ Saya yang bertanda tangan di bawah ini bermaksud mengajukan lamaran pekerjaan un
 
 Berikut data diri saya:</textarea>
                     </div>
+
+                    <div>
+                        <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-2">Posisi Tanda Tangan</h3>
+                        <select id="posisi_ttd" class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" onchange="updatePreview()">
+                            <option value="right">Kanan Bawah (Default)</option>
+                            <option value="left">Kiri Bawah</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -223,6 +225,7 @@ Berikut data diri saya:</textarea>
             const nama = document.getElementById('nama').value || "Muhammad Hafis";
             const tempat_lahir = document.getElementById('tempat_lahir').value || "Pekalongan";
             const tanggal_lahir = document.getElementById('tanggal_lahir').value || "15 Mei 2005";
+            const jenis_kelamin = document.getElementById('jenis_kelamin').value;
             const alamat = document.getElementById('alamat').value || "Paninggaran, Pekalongan, Jawa Tengah";
             const telepon = document.getElementById('telepon').value || "0856-1234-5678";
             const email = document.getElementById('email').value || "hafis@example.com";
@@ -233,10 +236,12 @@ Berikut data diri saya:</textarea>
             const perihal = document.getElementById('perihal').value || "Lamaran Pekerjaan sebagai IT Support";
             const lampiranText = document.getElementById('lampiran').value.replace(/\n/g, '<br>');
             let isi_awal = document.getElementById('isi_surat').value.replace(/\n/g, '<br>');
+            const posisiTTD = document.getElementById('posisi_ttd').value;
 
             let dataDiriHTML = `
                 <div class="data-diri">
                     <span class="label">Nama</span>                        <span>: ${nama}</span>
+                    <span class="label">Jenis Kelamin</span>               <span>: ${jenis_kelamin}</span>
                     <span class="label">Tempat/Tanggal Lahir</span>        <span>: ${tempat_lahir}, ${tanggal_lahir}</span>
                     <span class="label">Alamat</span>                      <span>: ${alamat}</span>
                     <span class="label">No. Telepon</span>                 <span>: ${telepon}</span>
@@ -249,13 +254,14 @@ Berikut data diri saya:</textarea>
             }
             dataDiriHTML += `</div>`;
 
+            const ttdClass = posisiTTD === 'left' ? 'left' : 'right';
+
             const contentHTML = `
                 <div class="tanggal">
                     <p>${tanggal}</p>
                 </div>
 
-                <div class="lampiran-perihal">
-                    <p>Lampiran : ${lampiranText || '-'}</p>
+                <div class="perihal">
                     <p>Perihal : ${perihal}</p>
                 </div>
 
@@ -270,11 +276,17 @@ Berikut data diri saya:</textarea>
                 <div class="isi-surat leading-relaxed space-y-5">
                     ${isi_awal}
                     ${dataDiriHTML}
-                    <p class="mt-3">Saya memiliki semangat belajar yang tinggi dan mampu bekerja dalam tim. Saya siap mengembangkan diri sesuai kebutuhan perusahaan.</p>
-                    <p>Demikian surat lamaran ini saya buat dengan sebenar-benarnya. Saya berharap dapat diberikan kesempatan untuk mengikuti proses seleksi lebih lanjut. Atas perhatian dan kesempatan yang diberikan, saya ucapkan terima kasih.</p>
+                    
+                    <p class="mt-4">Saya memiliki semangat belajar yang tinggi dan mampu bekerja dalam tim. Saya siap mengembangkan diri sesuai kebutuhan perusahaan.</p>
+                    
+                    <!-- Keterangan sopan + Lampiran -->
+                    <p class="mt-8 font-medium">Bersama surat ini saya lampirkan :</p>
+                    <div class="pl-6 text-sm">${lampiranText || '-'}</div>
+
+                    <p class="mt-6">Demikian surat lamaran ini saya buat dengan sebenar-benarnya. Saya berharap dapat diberikan kesempatan untuk mengikuti proses seleksi lebih lanjut. Atas perhatian dan kesempatan yang diberikan, saya ucapkan terima kasih.</p>
                 </div>
 
-                <div class="mt-10">
+                <div class="mt-12 ttd-container ${ttdClass}">
                     <p>Hormat saya,</p>
                     <div class="mt-16">
                         <p class="font-semibold">${nama}</p>
@@ -320,6 +332,7 @@ Berikut data diri saya:</textarea>
                 nama: document.getElementById('nama').value,
                 tempat_lahir: document.getElementById('tempat_lahir').value,
                 tanggal_lahir: document.getElementById('tanggal_lahir').value,
+                jenis_kelamin: document.getElementById('jenis_kelamin').value,
                 alamat: document.getElementById('alamat').value,
                 telepon: document.getElementById('telepon').value,
                 email: document.getElementById('email').value,
@@ -329,9 +342,10 @@ Berikut data diri saya:</textarea>
                 alamat_perusahaan: document.getElementById('alamat_perusahaan').value,
                 perihal: document.getElementById('perihal').value,
                 lampiran: document.getElementById('lampiran').value,
-                isi_surat: document.getElementById('isi_surat').value
+                isi_surat: document.getElementById('isi_surat').value,
+                posisi_ttd: document.getElementById('posisi_ttd').value
             };
-            localStorage.setItem('suratLamaranStandar_v69', JSON.stringify(data));
+            localStorage.setItem('suratLamaranStandar_v72', JSON.stringify(data));
             alert('Draft surat lamaran berhasil disimpan!');
         }
 
