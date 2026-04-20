@@ -17,10 +17,10 @@
             background: white;
             box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.15);
             margin: 30px auto;
-            padding: 25mm 22mm;   /* Margin standar A4 */
+            padding: 18mm 20mm;           /* Sedikit lebih kecil agar muat konten compact */
             font-family: 'Inter', system-ui, sans-serif;
             font-size: 11.8pt;
-            line-height: 1.78;    /* Diperketat agar muat di satu halaman */
+            line-height: 1.65;            /* Lebih compact sesuai permintaan */
             color: #1f2937;
             position: relative;
             box-sizing: border-box;
@@ -28,27 +28,52 @@
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white !important; margin: 0; padding: 0; }
-            .preview-wrapper { box-shadow: none !important; padding: 0 !important; }
+            body { 
+                background: white !important; 
+                margin: 0; 
+                padding: 0; 
+            }
+            .preview-wrapper { 
+                box-shadow: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+            }
             .a4-paper {
                 width: 210mm !important;
+                height: auto !important;
                 min-height: 297mm !important;
-                margin: 0 auto !important;
-                padding: 25mm 22mm !important;
+                margin: 0 !important;
+                padding: 18mm 20mm !important;
                 box-shadow: none !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            /* Anti potong - sangat penting saat line-height rapat */
+            *, p, div, span, .data-diri, .isi-surat {
+                overflow: visible !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .mt-12, .mt-20 {
+                page-break-inside: avoid;
             }
         }
 
-        .tanggal { text-align: right; margin-bottom: 8px; }
-        .lampiran-perihal { margin-bottom: 25px; line-height: 1.6; }
-        .alamat-tujuan { margin-bottom: 30px; }
+        .tanggal { text-align: right; margin-bottom: 10px; }
+        .lampiran-perihal { margin-bottom: 22px; line-height: 1.65; }
+        .alamat-tujuan { margin-bottom: 28px; }
         .isi-surat { text-align: justify; }
 
         .data-diri {
             display: grid;
-            grid-template-columns: 190px auto;   /* Label lebih lebar lagi agar berjauhan */
-            gap: 7px 16px;                      /* Jarak horizontal & vertikal lebih lega */
-            line-height: 1.82;
+            grid-template-columns: 195px auto;
+            gap: 6px 18px;               /* Lebih rapat */
+            line-height: 1.68;
             margin: 16px 0 20px 0;
         }
         .data-diri span.label {
@@ -67,7 +92,7 @@
                 <i class="fa-solid fa-envelope text-3xl text-emerald-400"></i>
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight">SURAT LAMARAN KERJA</h1>
-                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v6.7</p>
+                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v6.9 • Compact</p>
                 </div>
             </div>
             
@@ -94,15 +119,14 @@
     <div class="max-w-screen-2xl mx-auto px-6 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- FORM INPUT -->
+            <!-- FORM INPUT (sama seperti sebelumnya) -->
             <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8 no-print overflow-auto max-h-screen">
                 <div class="mb-8">
                     <h2 class="text-2xl font-semibold text-slate-800">Surat Lamaran Kerja Formal</h2>
-                    <p class="text-emerald-600 text-sm mt-1">Format Standar Resmi • Data Diri Rata Kanan Lebih Berjauhan</p>
+                    <p class="text-emerald-600 text-sm mt-1">Format Standar Resmi • Versi Compact</p>
                 </div>
                 
                 <div class="space-y-8">
-                    <!-- Data Diri -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-4">Data Diri Pelamar</h3>
                         <input id="nama" type="text" value="Muhammad Hafis" placeholder="Nama Lengkap" 
@@ -133,14 +157,12 @@
                                   class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">Administrasi jaringan, Troubleshooting hardware & software, Instalasi perangkat jaringan, HTML, CSS, JavaScript</textarea>
                     </div>
 
-                    <!-- Tanggal Surat -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-2">Tempat & Tanggal Surat</h3>
                         <input id="tanggal" type="text" value="Jakarta, 20 April 2026" 
                                class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" oninput="updatePreview()">
                     </div>
 
-                    <!-- Alamat Tujuan -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-4">Alamat Tujuan</h3>
                         <textarea id="alamat_perusahaan" rows="4" class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" 
@@ -150,7 +172,6 @@ Jl. Sudirman No. 45
 Jakarta Selatan 12910</textarea>
                     </div>
 
-                    <!-- Perihal & Lampiran -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-2">Perihal</h3>
@@ -167,7 +188,6 @@ Jakarta Selatan 12910</textarea>
                         </div>
                     </div>
 
-                    <!-- Isi Surat -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-4">Isi Surat (Bagian Utama)</h3>
                         <textarea id="isi_surat" rows="6" class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" 
@@ -184,7 +204,7 @@ Berikut data diri saya:</textarea>
             <div class="lg:col-span-7">
                 <div class="preview-header flex justify-between items-center mb-4 px-2 no-print">
                     <h3 class="font-semibold text-slate-700 flex items-center gap-x-2">
-                        <i class="fa-solid fa-eye"></i> Pratinjau Surat Lamaran (Format Standar Resmi)
+                        <i class="fa-solid fa-eye"></i> Pratinjau Surat Lamaran (Versi Compact)
                     </h3>
                     <span class="text-xs bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-3xl">FORMAT A4</span>
                 </div>
@@ -247,18 +267,18 @@ Berikut data diri saya:</textarea>
                     <p><strong>Dengan hormat,</strong></p>
                 </div>
 
-                <div class="isi-surat leading-relaxed space-y-6">
+                <div class="isi-surat leading-relaxed space-y-5">
                     ${isi_awal}
                     ${dataDiriHTML}
-                    <p class="mt-4">Saya memiliki semangat belajar yang tinggi dan mampu bekerja dalam tim. Saya siap mengembangkan diri sesuai kebutuhan perusahaan.</p>
+                    <p class="mt-3">Saya memiliki semangat belajar yang tinggi dan mampu bekerja dalam tim. Saya siap mengembangkan diri sesuai kebutuhan perusahaan.</p>
                     <p>Demikian surat lamaran ini saya buat dengan sebenar-benarnya. Saya berharap dapat diberikan kesempatan untuk mengikuti proses seleksi lebih lanjut. Atas perhatian dan kesempatan yang diberikan, saya ucapkan terima kasih.</p>
                 </div>
 
-                <div class="mt-12">
+                <div class="mt-10">
                     <p>Hormat saya,</p>
-                    <div class="mt-20">
+                    <div class="mt-16">
                         <p class="font-semibold">${nama}</p>
-                        <p class="text-sm text-slate-600 mt-6">${alamat}</p>
+                        <p class="text-sm text-slate-600 mt-5">${alamat}</p>
                         <p class="text-sm text-slate-600">${telepon} | ${email}</p>
                     </div>
                 </div>
@@ -273,14 +293,21 @@ Berikut data diri saya:</textarea>
         }
 
         function generatePDF() {
-            if (confirm('Simpan sebagai PDF?\n\nTips: Pilih Margins = None dan centang Background graphics')) {
+            if (confirm('Simpan sebagai PDF?\n\nPENTING:\n• Margins = None\n• Centang Background graphics\n• Scale = 100%')) {
                 printLetter();
             }
         }
 
         function saveAsImage() {
             const surat = document.getElementById('surat');
-            html2canvas(surat, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
+            updatePreview();
+            
+            html2canvas(surat, { 
+                scale: 3, 
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                height: surat.scrollHeight + 20
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Surat_Lamaran_${document.getElementById('nama').value.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -304,7 +331,7 @@ Berikut data diri saya:</textarea>
                 lampiran: document.getElementById('lampiran').value,
                 isi_surat: document.getElementById('isi_surat').value
             };
-            localStorage.setItem('suratLamaranStandar_v67', JSON.stringify(data));
+            localStorage.setItem('suratLamaranStandar_v69', JSON.stringify(data));
             alert('Draft surat lamaran berhasil disimpan!');
         }
 
