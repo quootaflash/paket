@@ -32,7 +32,6 @@
             .preview-wrapper { box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
             .a4-paper {
                 width: 210mm !important;
-                height: auto !important;
                 min-height: 297mm !important;
                 margin: 0 !important;
                 padding: 18mm 20mm !important;
@@ -41,60 +40,59 @@
             @page { size: A4 portrait; margin: 0; }
         }
 
-        .tanggal { text-align: right; margin-bottom: 10px; }
-        .perihal { margin-bottom: 28px; line-height: 1.65; }
+        .tanggal { text-align: right; margin-bottom: 20px; }
+        .perihal { margin-bottom: 28px; }
         .alamat-tujuan { margin-bottom: 28px; }
         .isi-surat { text-align: justify; }
 
+        /* DATA DIRI - RATA KIRI (Perubahan Utama) */
         .data-diri {
-            display: grid;
-            grid-template-columns: 195px auto;
-            gap: 6px 18px;
-            line-height: 1.68;
-            margin: 16px 0 20px 0;
-            align-items: baseline;           /* Penting untuk penjajaran */
+            margin: 16px 0 24px 0;
+            line-height: 1.75;
         }
         
-        .data-diri span.label {
-            text-align: right;
-            font-weight: 500;
-            white-space: nowrap;
-            padding-top: 2px;                /* Penyesuaian halus agar sejajar */
+        .data-diri .row {
+            display: flex;
+            margin-bottom: 6px;
         }
-
-        /* Khusus untuk baris Pendidikan yang panjang */
-        .data-diri .pendidikan-label {
-            align-self: start;
-            padding-top: 3px;
+        
+        .data-diri .label {
+            width: 195px;           /* Lebar label tetap */
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .data-diri .colon {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .ttd-container {
-            margin-top: 50px;
+            margin-top: 60px;
             display: flex;
             justify-content: flex-end;
         }
         .ttd-box {
             text-align: center;
             width: 45%;
-            margin-right: 10px;
         }
 
         .isi-surat .pembuka {
-            margin-top: 4px;
             margin-bottom: 12px;
         }
     </style>
 </head>
 <body class="bg-slate-50 font-sans">
 
-    <!-- NAVBAR (sama) -->
+    <!-- NAVBAR -->
     <nav class="bg-slate-950 text-white sticky top-0 z-50 no-print shadow-md">
         <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <i class="fa-solid fa-envelope text-3xl text-emerald-400"></i>
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight">SURAT LAMARAN KERJA</h1>
-                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v7.7 • Compact</p>
+                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v7.8 • Label Rata Kiri</p>
                 </div>
             </div>
             
@@ -125,10 +123,11 @@
             <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8 no-print overflow-auto max-h-screen">
                 <div class="mb-8">
                     <h2 class="text-2xl font-semibold text-slate-800">Surat Lamaran Kerja Formal</h2>
-                    <p class="text-emerald-600 text-sm mt-1">Format Standar Resmi • Versi Compact</p>
+                    <p class="text-emerald-600 text-sm mt-1">Label Rata Kiri • Versi Terbaru</p>
                 </div>
                 
                 <div class="space-y-8">
+                    <!-- Data Diri Pelamar -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-4">Data Diri Pelamar</h3>
                         <input id="nama" type="text" value="Muhammad Hafis" placeholder="Nama Lengkap" 
@@ -160,11 +159,9 @@
                         <input id="pendidikan" type="text" value="SMK Nurul Ummah Paninggaran, Jurusan Teknik Jaringan Komputer dan Telekomunikasi, Lulus 2026" 
                                placeholder="Pendidikan Terakhir" 
                                class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">
-
-                        <textarea id="keterampilan" rows="3" placeholder="Keterampilan Utama (tidak akan muncul di surat)" 
-                                  class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">Administrasi jaringan, Troubleshooting hardware & software, Instalasi perangkat jaringan, HTML, CSS, JavaScript</textarea>
                     </div>
 
+                    <!-- Bagian lain tetap sama -->
                     <div>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-2">Tempat & Tanggal Surat</h3>
                         <input id="tanggal" type="text" value="Jakarta, 20 April 2026" 
@@ -200,8 +197,7 @@ Jakarta Selatan 12910</textarea>
                         <h3 class="uppercase text-xs tracking-widest font-medium text-slate-500 mb-4">Isi Surat (Bagian Utama)</h3>
                         <textarea id="isi_surat" rows="6" class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none" 
                                   oninput="updatePreview()">
-
-Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusahaan yang Bapak/Ibu pimpin sedang membuka lowongan pekerjaan pada posisi Operator produksi untuk itu,saya bertanda tangan di bawah ini.</textarea>
+Berdasarkan informasi yang saya dapatkan di website perusahaan bahwa perusahaan Bapak/Ibu sedang membuka lowongan pekerjaan pada posisi IT Support, maka dengan ini saya mengajukan lamaran kerja.</textarea>
                     </div>
 
                     <div>
@@ -218,7 +214,7 @@ Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusa
             <div class="lg:col-span-7">
                 <div class="preview-header flex justify-between items-center mb-4 px-2 no-print">
                     <h3 class="font-semibold text-slate-700 flex items-center gap-x-2">
-                        <i class="fa-solid fa-eye"></i> Pratinjau Surat Lamaran (Versi Compact)
+                        <i class="fa-solid fa-eye"></i> Pratinjau Surat Lamaran (Label Rata Kiri)
                     </h3>
                     <span class="text-xs bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-3xl">FORMAT A4</span>
                 </div>
@@ -234,30 +230,31 @@ Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusa
 
     <script>
         function updatePreview() {
-            const nama = document.getElementById('nama').value || "Muhammad Hafis";
+            const nama = document.getElementById('nama').value || "Nama Lengkap";
             const tempat_lahir = document.getElementById('tempat_lahir').value || "Pekalongan";
             const tanggal_lahir = document.getElementById('tanggal_lahir').value || "15 Mei 2005";
             const jenis_kelamin = document.getElementById('jenis_kelamin').value;
             const alamat = document.getElementById('alamat').value || "Paninggaran, Pekalongan, Jawa Tengah";
             const telepon = document.getElementById('telepon').value || "0856-1234-5678";
-            const email = document.getElementById('email').value || "hafis@example.com";
-            const pendidikan = document.getElementById('pendidikan').value || "SMK Nurul Ummah Paninggaran, Jurusan Teknik Jaringan Komputer dan Telekomunikasi, Lulus 2026";
+            const email = document.getElementById('email').value || "email@example.com";
+            const pendidikan = document.getElementById('pendidikan').value || "Pendidikan Terakhir";
             const tanggal = document.getElementById('tanggal').value || "Jakarta, 20 April 2026";
             const alamat_perusahaan = document.getElementById('alamat_perusahaan').value;
-            const perihal = document.getElementById('perihal').value || "Lamaran Pekerjaan sebagai IT Support";
+            const perihal = document.getElementById('perihal').value || "Lamaran Pekerjaan";
             const lampiranText = document.getElementById('lampiran').value.replace(/\n/g, '<br>');
             let isi_awal = document.getElementById('isi_surat').value.replace(/\n/g, '<br>');
             const posisiTTD = document.getElementById('posisi_ttd').value;
 
-            let dataDiriHTML = `
+            // Data Diri dengan Label Rata Kiri
+            const dataDiriHTML = `
                 <div class="data-diri">
-                    <span class="label">Nama</span>                        <span>: ${nama}</span>
-                    <span class="label">Jenis Kelamin</span>               <span>: ${jenis_kelamin}</span>
-                    <span class="label">Tempat/Tanggal Lahir</span>        <span>: ${tempat_lahir}, ${tanggal_lahir}</span>
-                    <span class="label">Alamat</span>                      <span>: ${alamat}</span>
-                    <span class="label">No. Telepon</span>                 <span>: ${telepon}</span>
-                    <span class="label">Email</span>                       <span>: ${email}</span>
-                    <span class="label pendidikan-label">Pendidikan</span> <span>: ${pendidikan}</span>
+                    <div class="row"><span class="label">Nama</span><span class="colon">:</span><span>${nama}</span></div>
+                    <div class="row"><span class="label">Jenis Kelamin</span><span class="colon">:</span><span>${jenis_kelamin}</span></div>
+                    <div class="row"><span class="label">Tempat/Tanggal Lahir</span><span class="colon">:</span><span>${tempat_lahir}, ${tanggal_lahir}</span></div>
+                    <div class="row"><span class="label">Alamat</span><span class="colon">:</span><span>${alamat}</span></div>
+                    <div class="row"><span class="label">No. Telepon</span><span class="colon">:</span><span>${telepon}</span></div>
+                    <div class="row"><span class="label">Email</span><span class="colon">:</span><span>${email}</span></div>
+                    <div class="row"><span class="label">Pendidikan</span><span class="colon">:</span><span>${pendidikan}</span></div>
                 </div>
             `;
 
@@ -269,11 +266,11 @@ Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusa
                 </div>
 
                 <div class="perihal">
-                    <p>Perihal : ${perihal}</p>
+                    <p><strong>Perihal :</strong> ${perihal}</p>
                 </div>
 
                 <div class="alamat-tujuan">
-                    <p class="whitespace-pre-line">${alamat_perusahaan || 'Yth. Manager HRD<br>PT. Teknologi Digital Indonesia<br>Jl. Sudirman No. 45<br>Jakarta Selatan 12910'}</p>
+                    <p class="whitespace-pre-line">${alamat_perusahaan || 'Yth. Manager HRD<br>PT. ...'}</p>
                 </div>
 
                 <div class="mb-6">
@@ -284,9 +281,9 @@ Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusa
                     <p class="pembuka">${isi_awal}</p>
                     ${dataDiriHTML}
                     
-                    <p class="mt-4">Dengan ini saya saya mengajukan lamaran kerja di perusahaan yang Bapak/Ibu pimpin pada posisi yang saya lamar,saya siap bekerja dengan penuh tanggung jawab disiplin,serta mampu menyesuaikan diri dengan tim maupun sistem kerja yang berlaku.</p>
+                    <p class="mt-4">Dengan ini saya mengajukan lamaran kerja pada posisi yang saya lamar. Saya siap bekerja dengan penuh tanggung jawab, disiplin, serta mampu menyesuaikan diri dengan tim dan sistem kerja yang berlaku.</p>
                     
-                    <p class="mt-4 font-medium">Sebagai bahan pertimbangan,Bersama surat ini saya lampirkan dokumen pelengkap :</p>
+                    <p class="mt-4 font-medium">Sebagai bahan pertimbangan, bersama surat ini saya lampirkan dokumen pelengkap :</p>
                     <div class="pl-6 text-sm">${lampiranText || '-'}</div>
 
                     <p class="mt-6">Demikian surat lamaran ini saya buat dengan sebenar-benarnya. Saya berharap dapat diberikan kesempatan untuk mengikuti proses seleksi lebih lanjut. Atas perhatian dan kesempatan yang diberikan, saya ucapkan terima kasih.</p>
@@ -305,30 +302,36 @@ Berdasarkan informasi yang saya dapatkan di website perusahaan bahwasanya perusa
             document.getElementById('surat-content').innerHTML = contentHTML;
         }
 
-        // Fungsi lain tetap sama seperti sebelumnya
         function printLetter() { updatePreview(); window.print(); }
+        
         function generatePDF() {
-            if (confirm('Simpan sebagai PDF?\n\nPENTING:\n• Margins = None\n• Centang Background graphics\n• Scale = 100%')) printLetter();
+            if (confirm('Simpan sebagai PDF?\n\nTips:\n• Margins = None\n• Centang "Background graphics"')) {
+                printLetter();
+            }
         }
+        
         function saveAsImage() {
             const surat = document.getElementById('surat');
-            updatePreview();
-            html2canvas(surat, { scale: 3, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+            html2canvas(surat, { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Surat_Lamaran_${document.getElementById('nama').value.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
         }
+        
         function autoSaveDraft() {
-            // ... (sama seperti sebelumnya)
             alert('Draft surat lamaran berhasil disimpan!');
         }
+        
         function clearForm() {
             if (confirm('Reset semua isi surat?')) location.reload();
         }
 
-        window.onload = () => updatePreview();
+        // Inisialisasi
+        window.onload = () => {
+            updatePreview();
+        };
     </script>
 </body>
 </html>
