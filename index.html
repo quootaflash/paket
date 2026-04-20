@@ -69,6 +69,12 @@
         }
         .ttd-container.right { text-align: right; }
         .ttd-container.left { text-align: left; }
+
+        /* Jarak sangat rapat antara "Dengan hormat" dan paragraf pembuka */
+        .isi-surat .pembuka {
+            margin-top: 4px;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans">
@@ -80,7 +86,7 @@
                 <i class="fa-solid fa-envelope text-3xl text-emerald-400"></i>
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight">SURAT LAMARAN KERJA</h1>
-                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v7.2 • Compact</p>
+                    <p class="text-xs text-slate-400 -mt-0.5">Format Standar Resmi Indonesia v7.5 • Compact</p>
                 </div>
             </div>
             
@@ -147,7 +153,7 @@
                                placeholder="Pendidikan Terakhir" 
                                class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">
 
-                        <textarea id="keterampilan" rows="3" placeholder="Keterampilan Utama (pisahkan dengan koma)" 
+                        <textarea id="keterampilan" rows="3" placeholder="Keterampilan Utama (tidak akan muncul di surat)" 
                                   class="w-full px-5 py-4 border border-slate-200 rounded-3xl focus:border-emerald-500 outline-none mt-4" oninput="updatePreview()">Administrasi jaringan, Troubleshooting hardware & software, Instalasi perangkat jaringan, HTML, CSS, JavaScript</textarea>
                     </div>
 
@@ -230,7 +236,6 @@ Berikut data diri saya:</textarea>
             const telepon = document.getElementById('telepon').value || "0856-1234-5678";
             const email = document.getElementById('email').value || "hafis@example.com";
             const pendidikan = document.getElementById('pendidikan').value || "SMK Nurul Ummah Paninggaran, Jurusan Teknik Jaringan Komputer dan Telekomunikasi, Lulus 2026";
-            const keterampilan = document.getElementById('keterampilan').value || "";
             const tanggal = document.getElementById('tanggal').value || "Jakarta, 20 April 2026";
             const alamat_perusahaan = document.getElementById('alamat_perusahaan').value;
             const perihal = document.getElementById('perihal').value || "Lamaran Pekerjaan sebagai IT Support";
@@ -247,12 +252,8 @@ Berikut data diri saya:</textarea>
                     <span class="label">No. Telepon</span>                 <span>: ${telepon}</span>
                     <span class="label">Email</span>                       <span>: ${email}</span>
                     <span class="label">Pendidikan</span>                  <span>: ${pendidikan}</span>
+                </div>
             `;
-
-            if (keterampilan.trim() !== "") {
-                dataDiriHTML += `<span class="label">Keterampilan</span>       <span>: ${keterampilan}</span>`;
-            }
-            dataDiriHTML += `</div>`;
 
             const ttdClass = posisiTTD === 'left' ? 'left' : 'right';
 
@@ -269,12 +270,13 @@ Berikut data diri saya:</textarea>
                     <p class="whitespace-pre-line">${alamat_perusahaan || 'Yth. Manager HRD<br>PT. Teknologi Digital Indonesia<br>Jl. Sudirman No. 45<br>Jakarta Selatan 12910'}</p>
                 </div>
 
-                <div class="mb-8">
+                <div class="mb-6">
                     <p><strong>Dengan hormat,</strong></p>
                 </div>
 
                 <div class="isi-surat leading-relaxed space-y-5">
-                    ${isi_awal}
+                    <!-- Jarak sangat rapat dengan "Dengan hormat" -->
+                    <p class="pembuka">${isi_awal}</p>
                     ${dataDiriHTML}
                     
                     <p class="mt-4">Saya memiliki semangat belajar yang tinggi dan mampu bekerja dalam tim. Saya siap mengembangkan diri sesuai kebutuhan perusahaan.</p>
@@ -290,8 +292,6 @@ Berikut data diri saya:</textarea>
                     <p>Hormat saya,</p>
                     <div class="mt-16">
                         <p class="font-semibold">${nama}</p>
-                        <p class="text-sm text-slate-600 mt-5">${alamat}</p>
-                        <p class="text-sm text-slate-600">${telepon} | ${email}</p>
                     </div>
                 </div>
             `;
@@ -345,7 +345,7 @@ Berikut data diri saya:</textarea>
                 isi_surat: document.getElementById('isi_surat').value,
                 posisi_ttd: document.getElementById('posisi_ttd').value
             };
-            localStorage.setItem('suratLamaranStandar_v72', JSON.stringify(data));
+            localStorage.setItem('suratLamaranStandar_v75', JSON.stringify(data));
             alert('Draft surat lamaran berhasil disimpan!');
         }
 
