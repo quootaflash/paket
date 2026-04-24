@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Writehub</title>
+    <title>Writehub - E-Surat Lamaran</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -301,7 +301,7 @@
             </div>
             <div class="min-w-0">
                 <h1 class="text-[15px] font-bold tracking-tight truncate">Writehub E-surat</h1>
-                <p class="text-[8px] text-slate-500 -mt-0.5 tracking-widest uppercase">Profesional Tools v11.3</p>
+                <p class="text-[8px] text-slate-500 -mt-0.5 tracking-widest uppercase">Profesional Tools v11.4</p>
             </div>
         </div>
         <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -465,22 +465,25 @@
                                     <input id="f_tglS" type="date" class="fi" style="flex:1" oninput="lv()" value="2026-04-20">
                                 </div>
                             </div>
-                            <div>
-                                <label class="fl" for="f_tuj">Alamat Tujuan <span class="req">*</span></label>
-                                <textarea id="f_tuj" class="fi" rows="4" placeholder="Yth. ...\nPT. ...\nAlamat ..." oninput="lv()">Yth. Bapak/Ibu Manager HRD
-PT. Teknologi Digital Indonesia
-Jl. Jend. Sudirman Kav. 52-53
-Jakarta Selatan 12190</textarea>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2.5">
-                                <div>
+                            <div class="grid grid-cols-3 gap-2.5">
+                                <div class="col-span-3 sm:col-span-1">
+                                    <label class="fl" for="f_perusahaan">Nama Perusahaan</label>
+                                    <input id="f_perusahaan" class="fi" placeholder="Cth: PT. Nama PT" oninput="lv()" value="PT. Teknologi Digital Indonesia">
+                                </div>
+                                <div class="col-span-3 sm:col-span-2">
                                     <label class="fl" for="f_pos">Posisi yang Dilamar <span class="req">*</span></label>
                                     <input id="f_pos" class="fi" placeholder="Nama posisi jabatan" oninput="lv()" value="IT Support">
                                 </div>
-                                <div>
-                                    <label class="fl" for="f_sum">Sumber Informasi</label>
-                                    <input id="f_sum" class="fi" placeholder="Website / Media Sosial" oninput="lv()" value="website resmi perusahaan">
-                                </div>
+                            </div>
+                            <div>
+                                <label class="fl" for="f_tuj">Alamat Tujuan <span class="req">*</span></label>
+                                <textarea id="f_tuj" class="fi" rows="3" placeholder="Yth. Bapak/Ibu ...&#10;Jabatan ...&#10;Alamat Lengkap ..." oninput="lv()">Yth. Bapak/Ibu Manager HRD
+Jl. Jend. Sudirman Kav. 52-53
+Jakarta Selatan 12190</textarea>
+                            </div>
+                            <div>
+                                <label class="fl" for="f_sum">Sumber Informasi</label>
+                                <input id="f_sum" class="fi" placeholder="Website / Media Sosial" oninput="lv()" value="website resmi perusahaan">
                             </div>
                             <div>
                                 <label class="fl" for="f_nmr">Nomor Surat (opsional)</label>
@@ -922,7 +925,7 @@ function validate() {
             { id:'f_nama', err:'e_nama' }, { id:'f_tmpt' }, { id:'f_tglL' },
             { id:'f_almt' }, { id:'f_tlp' },
             { id:'f_eml', err:'e_eml' }, { id:'f_pend' },
-            { id:'f_tuj' }, { id:'f_pos' }
+            { id:'f_tuj' }, { id:'pos' }
         ];
         for (var i = 0; i < wajib.length; i++) {
             var r = wajib[i];
@@ -1028,7 +1031,11 @@ function renderSurat() {
     var pend = kap(v('f_pend')) || '________________________';
     var kota = kap(v('f_kota')) || '_____';
     var tglS = fmtTgl(v('f_tglS')) || '_____';
-    var tujRaw = v('f_tuj') || 'Yth. Bapak/Ibu\nPT. _______________\n_________________';
+    
+    // INPUT BARU: Nama Perusahaan terpisah
+    var perusahaan = kap(v('f_perusahaan')) || 'perusahaan Bapak/Ibu';
+    
+    var tujRaw = v('f_tuj') || 'Yth. Bapak/Ibu\n...';
     var pos = kap(v('f_pos')) || '_______________';
     var sum = v('f_sum') || 'informasi yang tersedia';
     var nmr = v('f_nmr');
@@ -1056,7 +1063,6 @@ function renderSurat() {
     var tujLines = tujRaw.split('\n').filter(function(l) { return l.trim(); });
     var tujHTML = '';
     for (var i = 0; i < tujLines.length; i++) tujHTML += '<div>' + (tujLines[i] || '&nbsp;') + '</div>';
-    var nmPt = tujLines.length >= 2 ? kap(tujLines[1].replace(/^PT\.?\s*/i, '').trim()) : 'perusahaan Bapak/Ibu';
 
     /* Parse lampiran */
     var lampLines = lampRaw.split('\n').filter(function(l) { return l.trim(); });
@@ -1090,7 +1096,7 @@ function renderSurat() {
         + '<div class="s-tuj">' + tujHTML + '</div>'
         + '<div style="margin-bottom:18px;">Dengan hormat,</div>'
         + '<div class="s-isi">'
-        + '<p>Berdasarkan informasi yang saya peroleh dari ' + sum + ' bahwa ' + nmPt + ' sedang membuka kesempatan bagi tenaga kerja untuk mengisi posisi <strong>' + pos + '</strong>, maka dengan ini saya bermaksud mengajukan lamaran pekerjaan pada posisi tersebut.</p>'
+        + '<p>Berdasarkan informasi yang saya peroleh dari ' + sum + ' bahwa ' + perusahaan + ' sedang membuka kesempatan bagi tenaga kerja untuk mengisi posisi <strong>' + pos + '</strong>, maka dengan ini saya bermaksud mengajukan lamaran pekerjaan pada posisi tersebut.</p>'
         + '<p>Sebagai bahan pertimbangan, berikut saya sampaikan data diri saya:</p>'
         + '<div class="dd-blk">'
         + '<div class="dd-r"><span class="dd-k">Nama Lengkap</span><span class="dd-t">:</span><span class="dd-v">' + nama + '</span></div>'
@@ -1273,10 +1279,10 @@ function fallbackCopy(text) {
 /* ==============================================
    DRAFT localStorage
    ============================================== */
-var SK = 'slamaran_draft_v11';
+var SK = 'slamaran_draft_v11_4'; // Updated version key
 var FIDS = [
     'f_nama','f_tmpt','f_tglL','f_jk','f_stat','f_agm','f_almt',
-    'f_tlp','f_eml','f_pend','f_kota','f_tglS','f_tuj','f_pos',
+    'f_tlp','f_eml','f_pend','f_kota','f_tglS','f_tuj','f_pos','f_perusahaan', // Added f_perusahaan
     'f_sum','f_nmr','f_peng','f_mot','f_lamp','f_tdp','f_tds',
     'f_tdt','f_tdk','f_fs','f_lh','f_wm','f_wmOp','f_wmSz','f_margin'
 ];
@@ -1388,7 +1394,7 @@ function confirmReset() {
         bx.querySelector('#_rc').onclick = function() { if (ov.parentNode) ov.parentNode.removeChild(ov); };
         bx.querySelector('#_ro').onclick = function() {
             if (ov.parentNode) ov.parentNode.removeChild(ov);
-            var clearIds = ['f_nama','f_tmpt','f_almt','f_tlp','f_eml','f_pend','f_kota','f_tuj','f_pos','f_sum','f_nmr','f_peng','f_mot','f_lamp','f_tdt','f_tdk','f_wm'];
+            var clearIds = ['f_nama','f_tmpt','f_almt','f_tlp','f_eml','f_pend','f_kota','f_tuj','f_pos','f_perusahaan','f_sum','f_nmr','f_peng','f_mot','f_lamp','f_tdt','f_tdk','f_wm'];
             for (var i = 0; i < clearIds.length; i++) { var el = document.getElementById(clearIds[i]); if (el) el.value = ''; }
             var resets = { f_jk:'Laki-laki', f_stat:'Belum Menikah', f_agm:'Islam', f_tdp:'right', f_tds:'Hormat saya,', f_fs:'11.5pt', f_lh:'1.72', f_wmOp:'0.04', f_wmSz:'72pt', f_margin:'none' };
             for (var k in resets) { var el2 = document.getElementById(k); if (el2) el2.value = resets[k]; }
