@@ -301,7 +301,7 @@
             </div>
             <div class="min-w-0">
                 <h1 class="text-[15px] font-bold tracking-tight truncate">Writehub E-surat</h1>
-                <p class="text-[8px] text-slate-500 -mt-0.5 tracking-widest uppercase">Profesional Tools v11.4</p>
+                <p class="text-[8px] text-slate-500 -mt-0.5 tracking-widest uppercase">Profesional Tools v11.5</p>
             </div>
         </div>
         <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -465,21 +465,26 @@
                                     <input id="f_tglS" type="date" class="fi" style="flex:1" oninput="lv()" value="2026-04-20">
                                 </div>
                             </div>
+                            
+                            <!-- UPGRADE: Kolom Nama Perusahaan Terpisah -->
                             <div class="grid grid-cols-3 gap-2.5">
-                                <div class="col-span-3 sm:col-span-1">
-                                    <label class="fl" for="f_perusahaan">Nama Perusahaan</label>
-                                    <input id="f_perusahaan" class="fi" placeholder="Cth: PT. Nama PT" oninput="lv()" value="PT. Teknologi Digital Indonesia">
+                                <div class="col-span-3">
+                                    <label class="fl" for="f_perusahaan">Nama Perusahaan <span class="req">*</span> <i class="fa-solid fa-wand-magic-sparkles text-teal-500 ml-1" title="Otomatis mengisi Alamat & Isi Surat"></i></label>
+                                    <input id="f_perusahaan" class="fi font-semibold" placeholder="Cth: PT. Teknologi Digital Indonesia" oninput="syncCompany()" value="PT. Teknologi Digital Indonesia">
                                 </div>
-                                <div class="col-span-3 sm:col-span-2">
+                                <div class="col-span-3 sm:col-span-1">
                                     <label class="fl" for="f_pos">Posisi yang Dilamar <span class="req">*</span></label>
                                     <input id="f_pos" class="fi" placeholder="Nama posisi jabatan" oninput="lv()" value="IT Support">
                                 </div>
                             </div>
+
                             <div>
                                 <label class="fl" for="f_tuj">Alamat Tujuan <span class="req">*</span></label>
-                                <textarea id="f_tuj" class="fi" rows="3" placeholder="Yth. Bapak/Ibu ...&#10;Jabatan ...&#10;Alamat Lengkap ..." oninput="lv()">Yth. Bapak/Ibu Manager HRD
+                                <textarea id="f_tuj" class="fi" rows="3" placeholder="Yth. Bapak/Ibu HRD&#10;Nama Perusahaan&#10;Alamat Lengkap ..." oninput="lv()">Yth. Bapak/Ibu HRD
+PT. Teknologi Digital Indonesia
 Jl. Jend. Sudirman Kav. 52-53
 Jakarta Selatan 12190</textarea>
+                                <p class="text-[9px] text-[var(--muted)] mt-1"><i class="fa-solid fa-info-circle mr-1"></i>Alamat di atas otomatis terisi saat Anda mengetik Nama Perusahaan. Silakan edit jika diperlukan.</p>
                             </div>
                             <div>
                                 <label class="fl" for="f_sum">Sumber Informasi</label>
@@ -779,6 +784,47 @@ function useTpl(k, el) {
 }
 
 /* ==============================================
+   FUNGSI SINKRONISASI PERUSAHAAN (UPGRADE)
+   ============================================== */
+function syncCompany() {
+    try {
+        var compInput = document.getElementById('f_perusahaan');
+        var tujInput = document.getElementById('f_tuj');
+        var companyName = kap(compInput.value.trim());
+        
+        if (!companyName) {
+            // Jika kosong, reset placeholder saja, jangan hapus isi user kalau user sedang edit manual
+            tujInput.placeholder = 'Yth. Bapak/Ibu HRD\nNama Perusahaan\nAlamat Lengkap ...';
+            lv(); // Update preview normal (tanpa nama perusahaan)
+            return;
+        }
+
+        /* Cek apakah user sedang mengedit manual atau masih menggunakan format default */
+        var currentTuj = tujInput.value.trim();
+        var defaultStart = 'Yth. Bapak/Ibu HRD\n';
+        
+        /* Logika cerdas: Jika baris pertama masih mengandung "HRD" dan baris kedua cocok dengan nama perusahaan lama, 
+           kita anggap user membiarkan sistem menangani, jadi kita update otomatis. 
+           Jika user sudah mengubah menjadi "Yth. Bpk. Budi Santoso", jangan sentuh. */
+        
+        var lines = currentTuj.split('\n');
+        var isAutoFormat = (lines.length >= 2 && lines[0].includes('HRD'));
+        
+        if (isAutoFormat) {
+            var newAddr = defaultStart + companyName + '\n'; // Baris 1 & 2
+            // Sisakan baris ke-3 dst jika ada (alamat lengkap), atau gunakan placeholder
+            if (lines.length > 2) {
+                for (var i = 2; i < lines.length; i++) newAddr += (i > 2 ? '\n' : '') + lines[i];
+            }
+            tujInput.value = newAddr;
+        }
+        
+        // Selalu update preview surat karena kalimat pembuka menggunakan nama perusahaan
+        lv();
+    } catch(e) { console.error('syncCompany error:', e); }
+}
+
+/* ==============================================
    TOAST — DIBLOKIR SAAT MODE CETAK
    ============================================== */
 function toast(msg, type) {
@@ -925,7 +971,7 @@ function validate() {
             { id:'f_nama', err:'e_nama' }, { id:'f_tmpt' }, { id:'f_tglL' },
             { id:'f_almt' }, { id:'f_tlp' },
             { id:'f_eml', err:'e_eml' }, { id:'f_pend' },
-            { id:'f_tuj' }, { id:'pos' }
+            { id:'f_tuj' }, { id:'f_pos' }, { id:'f_perusahaan' }
         ];
         for (var i = 0; i < wajib.length; i++) {
             var r = wajib[i];
@@ -1090,13 +1136,19 @@ function renderSurat() {
     if (pgEl) { pgEl.textContent = 'Halaman 1'; pgEl.style.display = showPgNum ? 'block' : 'none'; }
 
     /* Susun HTML */
+    // PERUBAHAN LOGIKA KALIMAT PEMBUKA:
+    // Jika perusahaan diisi, gunakan nama perusahaan langsung. Jika kosong, gunakan teks generik.
+    var introText = (perusahaan && perusahaan !== 'PERUSAHAAN BAPAK/IBU') 
+        ? 'Berdasarkan informasi yang saya peroleh dari ' + sum + ' bahwa ' + perusahaan + ' sedang membuka kesempatan bagi tenaga kerja untuk mengisi posisi <strong>' + pos + '</strong>, maka dengan ini saya bermaksud mengajukan lamaran pekerjaan pada posisi tersebut.'
+        : 'Berdasarkan informasi yang saya peroleh dari ' + sum + ' bahwa perusahaan Bapak/Ibu sedang membuka kesempatan bagi tenaga kerja untuk mengisi posisi <strong>' + pos + '</strong>, maka dengan ini saya bermaksud mengajukan lamaran pekerjaan pada posisi tersebut.';
+
     var h = wmHTML
         + '<div class="s-tgl">' + kota + ', ' + tglS + '</div>'
         + nmrHTML
         + '<div class="s-tuj">' + tujHTML + '</div>'
         + '<div style="margin-bottom:18px;">Dengan hormat,</div>'
         + '<div class="s-isi">'
-        + '<p>Berdasarkan informasi yang saya peroleh dari ' + sum + ' bahwa ' + perusahaan + ' sedang membuka kesempatan bagi tenaga kerja untuk mengisi posisi <strong>' + pos + '</strong>, maka dengan ini saya bermaksud mengajukan lamaran pekerjaan pada posisi tersebut.</p>'
+        + '<p>' + introText + '</p>'
         + '<p>Sebagai bahan pertimbangan, berikut saya sampaikan data diri saya:</p>'
         + '<div class="dd-blk">'
         + '<div class="dd-r"><span class="dd-k">Nama Lengkap</span><span class="dd-t">:</span><span class="dd-v">' + nama + '</span></div>'
@@ -1279,7 +1331,7 @@ function fallbackCopy(text) {
 /* ==============================================
    DRAFT localStorage
    ============================================== */
-var SK = 'slamaran_draft_v11_4'; // Updated version key
+var SK = 'slamaran_draft_v11_5'; // Updated version key
 var FIDS = [
     'f_nama','f_tmpt','f_tglL','f_jk','f_stat','f_agm','f_almt',
     'f_tlp','f_eml','f_pend','f_kota','f_tglS','f_tuj','f_pos','f_perusahaan', // Added f_perusahaan
@@ -1430,7 +1482,13 @@ document.addEventListener('keydown', function(e) {
    ============================================== */
 window.addEventListener('DOMContentLoaded', function() {
     try {
-        lv();
+        // Inisialisasi otomatis alamat saat load jika ada data perusahaan di draft
+        var compInput = document.getElementById('f_perusahaan');
+        if (compInput && compInput.value) {
+            syncCompany(); 
+        } else {
+            lv();
+        }
 
         var allInputs = document.querySelectorAll('.fi');
         for (var i = 0; i < allInputs.length; i++) {
